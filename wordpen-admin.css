@@ -1,0 +1,34 @@
+div.CodeMirror {
+	border: 1px solid #ddd;
+	width: 99%;
+}
+
+table.wordpen-table td {
+	display:inline-block;
+	width: 80%;
+}
+table.wordpen-table th {
+	display:inline-block;
+	width: 20%;
+}
+
+table.wordpen-table,
+table.wordpen-table tbody,
+table.wordpen-table tr
+ {
+	display: block;
+	width: 100%;
+}
+
+
+.post-type-wordpen #post-body-content {
+	display: none;
+}
+
+#codepen_uri_back {
+	width: calc( 99% - 150px );
+}
+
+.codepentext button {
+	width: 150px;
+}
