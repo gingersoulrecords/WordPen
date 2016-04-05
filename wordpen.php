@@ -29,14 +29,75 @@ class WordPen {
 			var_dump( $result );
 			die();
 		}
+		self::render_resources();
 		add_action( 'init',			array( 'WordPen', 'cpt_init' ) );
 		// add_filter( 'wordpen_metabox_field_save', array( 'WordPen', 'maybe_import' ), 10, 3 );
     	add_action( 'save_post', 	array( 'WordPen', 'maybe_import' ), 100 );
 		add_shortcode( 'wordpen' , array( 'WordPen', 'shortcode' ), 99, 1 );
+		add_action( 'wp_enqueue_scripts', array( 'WordPen', 'pre_process_shortcode' ) );
 		if ( is_admin() ) {
 			self::postmeta_init();
 			add_action( 'admin_enqueue_scripts',		array( 'WordPen', 'style' )	);
 		}
+	}
+	private static function render_resources() {
+		if ( isset( $_REQUEST['wordpen_style'] ) ) {
+			echo get_post_meta( $_REQUEST['wordpen_style'], '_codepen_css', true );
+			die();
+		}		
+		if ( isset( $_REQUEST['wordpen_script'] ) ) {
+			echo get_post_meta( $_REQUEST['wordpen_script'], '_codepen_js', true );
+			die();
+		}
+	}
+	public static function pre_process_shortcode() {
+		global $wp_query;
+		$regex = get_shortcode_regex();
+		$ids = array();
+		foreach ( $wp_query->posts as $my_post ) {
+			preg_match_all( '/'.$regex.'/', $my_post->post_content, $matches );
+			foreach ($matches[2] as $key => $value) {
+				if( 'wordpen' == $value ) {
+					$args = trim($matches[3][$key]);
+					preg_match_all( '/id=(?:\'([0-9]+)\')|(?:\"([0-9]+)\")/', $args, $m );
+					if ( isset( $m[1][0] ) && $m[1][0] ) {
+						$ids[] = $m[1][0];
+					}
+					if ( isset( $m[2][0] ) && $m[2][0] ) {
+						$ids[] = $m[2][0];
+					}
+				}
+			}
+		}
+		// var_dump( $ids );
+		foreach ( $ids as $id ) {
+			self::enqueue_resources( $id );
+		}
+	}
+	private static function enqueue_resources( $pen_id ){
+		$resources = get_post_meta( $pen_id, '_codepen_resources', true );
+		foreach( $resources as $resource ) {
+			$id = 'wordpen-'.pathinfo( $resource['url'], PATHINFO_FILENAME).'-'.pathinfo($resource['url'], PATHINFO_EXTENSION);
+			$url = $resource['url'];
+			switch ( $resource['resource_type'] ) {
+				case 'js' : 
+					wp_register_script( $id, $url );
+					wp_enqueue_script( $id );
+				break;
+				case 'css' : 
+					wp_register_style( $id, $url );
+					wp_enqueue_style( $id );
+				break;
+			}
+			// var_dump($id);
+		}
+		$id= 'wordpen-'.$pen_id;
+		$url = add_query_arg( 'wordpen_script', $pen_id, get_bloginfo('url') );
+		wp_register_script( $id, $url, array(), false, true );
+		wp_enqueue_script( $id );
+		$url = add_query_arg( 'wordpen_style', $pen_id, get_bloginfo('url') );
+		wp_register_style( $id, $url );
+		wp_enqueue_style( $id );
 	}
 	public static function style() {
 		wp_register_script( 'codemirror', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.js' );
@@ -54,12 +115,8 @@ class WordPen {
 	}
 	public static function shortcode( $args, $content = '' ) {
 		$pen_id = $args['id'];
-		$html = get_post_meta( $pen_id, 'codepen_html', true );
-		$css = get_post_meta( $pen_id, 'codepen_css', true );
-		echo '<style>'.$css.'</style>';
-		echo $html;
-		$js = get_post_meta( $pen_id, 'codepen_js', true );
-		echo '<script>'.$js.'</script>';
+		$html = get_post_meta( $pen_id, '_codepen_html', true );
+		echo "<div class='wordpen-container'>{$html}</div>\r";
 	}
 	public static function import_pen( $url ) {
 		$response = wp_remote_get( $url );
