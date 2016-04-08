@@ -31,15 +31,13 @@ class WordPen {
 		}
 		self::render_resources();
 		add_action( 'init',			array( 'WordPen', 'cpt_init' ) );
-		// add_filter( 'wordpen_metabox_field_save', array( 'WordPen', 'maybe_import' ), 10, 3 );
-    	add_action( 'save_post', 	array( 'WordPen', 'maybe_import' ), 100 );
+    	add_filter( 'wp_insert_post_data', 	array( 'WordPen', 'maybe_import' ), 100, 2 );
 		add_shortcode( 'wordpen' , array( 'WordPen', 'shortcode' ), 99, 1 );
 		add_action( 'wp_enqueue_scripts', array( 'WordPen', 'pre_process_shortcode' ) );
 		if ( is_admin() ) {
 			add_action( 'init',							array( 'WordPen', 'postmeta_init' ) );
 			add_action( 'admin_enqueue_scripts',				array( 'WordPen', 'style' )	);
 			add_filter( 'manage_edit-wordpen_columns',			array( 'WordPen', 'columns' ) );
-			// add_filter( 'manage_edit-wordpen_sortable_columns',	array( 'WordPen', 'columns_sortable' ) );
 			add_action( 'manage_wordpen_posts_custom_column', 	array( 'WordPen', 'columns_content' ), 10, 2 );
 		}
 	}
@@ -107,7 +105,6 @@ class WordPen {
 					wp_enqueue_style( $id );
 				break;
 			}
-			// var_dump($id);
 		}
 		$id= 'wordpen-'.$pen_id;
 		$url = add_query_arg( 'wordpen_script', $pen_id, get_bloginfo('url') );
@@ -145,15 +142,13 @@ class WordPen {
 		$data = json_decode( $data, true );
 		$data = $data['__pen'];
 		$data = json_decode( $data, true );
-		// var_dump($data);
-		// die();
 		$result = array(
 			'_codepen_css' => $data['css'],
 			'_codepen_html' => $data['html'],
 			'_codepen_js' => $data['js'],
 			'_codepen_resources' => $data['resources'],
 			'_codepen_title' => $data['title'],
-			'_codepen_import' => false,
+			// '_codepen_import' => false,
 			'_codepen_uri'	=> '',
 			'_codepen_uri_back'	=> $url,
 			// 'codepen_raw' => $data,
@@ -167,34 +162,40 @@ class WordPen {
 		unset($data);
 		return $result;
 	}
-	public static function maybe_import( $post_id ) {
+	public static function maybe_import( $data, $post ) {
+		$post_id = $post['ID'];
+		if ( ! $post_id ) {
+			return $data;			
+		}
 		if ( ! isset( $_POST['wordpen_metabox_nonce'] ) ) {
-			return;
+			return $data;
 		}
 		if ( ! wp_verify_nonce( $_POST['wordpen_metabox_nonce'], 'wordpen_metabox_nonce' ) ) {
-			return;
+			return $data;
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return;
+			return $data;
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return;
+			return $data;
 		}
 		if ( ! isset( $_REQUEST['_codepen_uri'] ) || ! $_REQUEST['_codepen_uri'] ) {
-			return;
+			return $data;
 		}
 		$result = self::import_pen( $_REQUEST['_codepen_uri'] );
-    	remove_action( 'save_post', 	array( 'WordPen', 'maybe_import' ), 100 );
-   		wp_update_post( array( 'ID'=>$post_id, 'post_title'=> $result['_codepen_title'] ) );
-    	add_action( 'save_post', 	array( 'WordPen', 'maybe_import' ), 100 );
-		unset( $result['_codepen_title'] );
-		if ( $result ) {
-			foreach( $result as $key => $value ) {
-				update_post_meta( $post_id, $key, $value );
-			}
-		}		
+		if( __( 'Auto Draft' ) == $data['post_title'] || '' == $data['post_title'] ) {
+			$data['post_title'] = $result['_codepen_title'];
+		}
+		unset( $result['_codepen_title'] );		
+		unset( $result['_codepen_uri'] );		
+		foreach( $result as $key => $value ) {
+			// $data['meta_input'][$key] = $value;
+			$got = update_post_meta( $post_id, $key, $value );
+		}
+		unset($result);
+    	remove_action( 'save_post', array( 'WordPen_Metabox', 'save' ) );
+		return $data;
 	}
-
 	public static function cpt_init() {
 		$args = array(
 			// 'public' 				=> false,
