@@ -36,8 +36,26 @@ class WordPen {
 		add_shortcode( 'wordpen' , array( 'WordPen', 'shortcode' ), 99, 1 );
 		add_action( 'wp_enqueue_scripts', array( 'WordPen', 'pre_process_shortcode' ) );
 		if ( is_admin() ) {
-			self::postmeta_init();
-			add_action( 'admin_enqueue_scripts',		array( 'WordPen', 'style' )	);
+			add_action( 'init',							array( 'WordPen', 'postmeta_init' ) );
+			add_action( 'admin_enqueue_scripts',				array( 'WordPen', 'style' )	);
+			add_filter( 'manage_edit-wordpen_columns',			array( 'WordPen', 'columns' ) );
+			// add_filter( 'manage_edit-wordpen_sortable_columns',	array( 'WordPen', 'columns_sortable' ) );
+			add_action( 'manage_wordpen_posts_custom_column', 	array( 'WordPen', 'columns_content' ), 10, 2 );
+		}
+	}
+	public static function columns( $col ) {
+		$temp = $col['date'];
+		unset( $col['date'] );
+		$col['wordpen_shortcode'] = __( 'Shortcode', 'wordpen' );
+		$col['date'] = $temp;
+		return $col;
+	}
+	public static function columns_content( $colname, $pen_id ) {
+		switch ( $colname ) {
+			case 'wordpen_shortcode' :
+				echo '<input type="text" value="'.esc_attr( "[wordpen id=\"". $pen_id ."\"]" ).'" readonly class="wordpen-shortcode large-text"/>';
+				// echo '<code>'.get_permalink( $link_id ).'</code>';
+			break;
 		}
 	}
 	private static function render_resources() {
@@ -127,11 +145,14 @@ class WordPen {
 		$data = json_decode( $data, true );
 		$data = $data['__pen'];
 		$data = json_decode( $data, true );
+		// var_dump($data);
+		// die();
 		$result = array(
 			'_codepen_css' => $data['css'],
 			'_codepen_html' => $data['html'],
 			'_codepen_js' => $data['js'],
 			'_codepen_resources' => $data['resources'],
+			'_codepen_title' => $data['title'],
 			'_codepen_import' => false,
 			'_codepen_uri'	=> '',
 			'_codepen_uri_back'	=> $url,
@@ -163,6 +184,10 @@ class WordPen {
 			return;
 		}
 		$result = self::import_pen( $_REQUEST['_codepen_uri'] );
+    	remove_action( 'save_post', 	array( 'WordPen', 'maybe_import' ), 100 );
+   		wp_update_post( array( 'ID'=>$post_id, 'post_title'=> $result['_codepen_title'] ) );
+    	add_action( 'save_post', 	array( 'WordPen', 'maybe_import' ), 100 );
+		unset( $result['_codepen_title'] );
 		if ( $result ) {
 			foreach( $result as $key => $value ) {
 				update_post_meta( $post_id, $key, $value );
@@ -181,7 +206,7 @@ class WordPen {
 		$args = apply_filters( 'wordpen_cpt_args', $args );
 		register_post_type( 'wordpen', $args );
 	}
-	private static function postmeta_init() {
+	public static function postmeta_init() {
 		require_once( self::$plugin_path . 'tiny/postmeta.php');
 		$args = array(
 			'id'	=> 'wordpen_box',
@@ -190,46 +215,56 @@ class WordPen {
 			'context' => 'normal',
 			'priority' => 'high',
 			'fields' => array(
-				'_codepen_uri' => array(
-					'id' => '_codepen_uri',
-					'field_type' => 'custom_field',
-					'input_type' => 'codepentext',// date|upload
-					'title' => __( 'Codepen URI', 'wordpen' ),
-				),
-				// '_codepen_uri_back' => array(
-				// 	'id' => '_codepen_uri_back',
-				// 	'field_type' => 'none',
-				// 	'input_type' => 'justtext',// date|upload
-				// 	'title' => __( 'Codepen URI', 'wordpen' ),
-				// ),
-				'_codepen_html' => array(
-					'id' => '_codepen_html',
-					'field_type' => 'custom_field',
-					'input_type' => 'codemirror',// date|upload
-					'title' => __( 'Codepen HTML', 'wordpen' ),
-					'attributes' => array(
-						'rows' => 15,
-						'cols' => 30,
-					),
-				),
-				'_codepen_css' => array(
-					'id' => '_codepen_css',
-					'field_type' => 'custom_field',
-					'input_type' => 'codemirror',// date|upload
-					'title' => __( 'Codepen CSS', 'wordpen' ),
-					'attributes' => array(
-						'rows' => 15,
-					),
-				),
-				'_codepen_js' => array(
-					'id' => '_codepen_js',
-					'field_type' => 'custom_field',
-					'input_type' => 'codemirror',// date|upload
-					'title' => __( 'Codepen JavaScript', 'wordpen' ),
-					'attributes' => array(
-						'rows' => 15,
-					),
-				),
+			),
+		);
+		$args['fields']['_codepen_uri'] = array(
+			'id' => '_codepen_uri',
+			'field_type' => 'custom_field',
+			'input_type' => 'codepentext',// date|upload
+			'title' => __( 'Codepen URI', 'wordpen' ),
+		);
+		$args['fields']['_codepen_title'] = array(
+			'id' => '_codepen_title',
+			'field_type' => 'post_title',
+			'input_type' => 'text',// date|upload
+			'title' => __( 'Title', 'wordpen' ),
+		);
+		$args['fields']['shortcode'] = array(
+			'id' => 'shortcode',
+			'field_type' => 'none',
+			'input_type' => 'justtext',// date|upload
+			'title' => __( 'Shortcode', 'wordpen' ),
+			'default' => esc_attr("[wordpen id=\"%post_id%\"]"),
+			'attributes' => array(
+				'readonly' => true,
+			),
+		);
+		$args['fields']['_codepen_html'] = array(
+			'id' => '_codepen_html',
+			'field_type' => 'custom_field',
+			'input_type' => 'codemirror',// date|upload
+			'title' => __( 'Codepen HTML', 'wordpen' ),
+			'attributes' => array(
+				'rows' => 15,
+				'cols' => 30,
+			),
+		);
+		$args['fields']['_codepen_css'] = array(
+			'id' => '_codepen_css',
+			'field_type' => 'custom_field',
+			'input_type' => 'codemirror',// date|upload
+			'title' => __( 'Codepen CSS', 'wordpen' ),
+			'attributes' => array(
+				'rows' => 15,
+			),
+		);
+		$args['fields']['_codepen_js'] = array(
+			'id' => '_codepen_js',
+			'field_type' => 'custom_field',
+			'input_type' => 'codemirror',// date|upload
+			'title' => __( 'Codepen JavaScript', 'wordpen' ),
+			'attributes' => array(
+				'rows' => 15,
 			),
 		);
 		$args = apply_filters( 'wordpen_postmeta', $args );

@@ -62,10 +62,22 @@ class WordPen_Metabox {
 		return $echo;
 	}
 	public static function _input_justtext( $field, $value ) {
+		$screen = get_current_screen();
+		if ( 'edit' == $screen->parent_base && 'add' == $screen->action ) {
+			return false;
+		}
 		$echo  = '<tr>';
 		$echo .= '<th scope="row"><label for="'.$field['id'].'">'.$field['title'].'</label></th>';
 		$echo .= '<td>';
-		$echo .= '<input type="text" readonly id="'.$field['id'].'" value="'.$value.'" class="large-text">';
+		$attributes = isset( $field['attributes'] ) ? $field['attributes']: array();
+		foreach ( $attributes as $key => $val ) {
+			$attributes[ $key ] = "{$key}=\"{$val}\"";
+		}
+		$attributes = implode( ' ', $attributes );
+		if ( $attributes ) {
+			$attributes = ' '.$attributes;
+		}
+		$echo .= '<input type="text" readonly id="'.$field['id'].'" value="'.$value.'" class="large-text"'.$attributes.'>';
 		if ( isset($field['description']) ) {
 			$echo .= '<p class="description">'.$field['description'].'</p>';
 		}
@@ -198,19 +210,32 @@ class WordPen_Metabox {
 		if ( !$value && isset( $field['default'] ) ) {
 			$value = $field['default'];
 		}
+		$value = str_replace( '%post_id%', $post->ID, $value );
 		return $value;
 	}
 	public static function _value_post_type( $field, $post ) {
 		$value = get_post_meta( $post->ID, $field['id']);
 		return $value;
 	}
-
+	public static function _value_post_title( $field, $post ) {
+		$value = get_the_title( $post->ID );
+		if ( 'auto-draft' == get_post_status( $post->ID ) ) {
+			$value = '';
+		}
+		return $value;
+	}
 	public static function _save_none() {
 
 	}
 	public static function _save_custom_field( $post_id, $field, $value ) {
 		$new_value = $value;
 		update_post_meta( $post_id, $field['id'], $new_value );
+	}
+	public static function _save_post_title( $post_id, $field, $value ) {
+		$new_value = $value;
+    	remove_action( 'save_post', array( 'WordPen_Metabox', 'save' ) );
+		wp_update_post( array( 'ID' => $post_id, 'post_title' => $new_value ) );
+    	add_action( 'save_post', array( 'WordPen_Metabox', 'save' ) );
 	}
 	public static function _save_post_type( $post_id, $field, $value ) {
 					// 			if ( is_array( $_POST[$field['id']] ) ) {

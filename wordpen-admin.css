@@ -25,10 +25,11 @@ table.wordpen-table tr
 	display: none;
 }
 
-#codepen_uri_back {
-	width: calc( 99% - 150px );
-}
 
 .codepentext button {
 	width: 150px;
+}
+
+#_codepen_uri_back {
+	width: calc( 99% - 150px );
 }
