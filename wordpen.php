@@ -60,7 +60,7 @@ class WordPen {
 		if ( isset( $_REQUEST['wordpen_style'] ) ) {
 			echo get_post_meta( $_REQUEST['wordpen_style'], '_codepen_css', true );
 			die();
-		}		
+		}
 		if ( isset( $_REQUEST['wordpen_script'] ) ) {
 			echo get_post_meta( $_REQUEST['wordpen_script'], '_codepen_js', true );
 			die();
@@ -96,11 +96,11 @@ class WordPen {
 			$id = 'wordpen-'.pathinfo( $resource['url'], PATHINFO_FILENAME).'-'.pathinfo($resource['url'], PATHINFO_EXTENSION);
 			$url = $resource['url'];
 			switch ( $resource['resource_type'] ) {
-				case 'js' : 
+				case 'js' :
 					wp_register_script( $id, $url );
 					wp_enqueue_script( $id );
 				break;
-				case 'css' : 
+				case 'css' :
 					wp_register_style( $id, $url );
 					wp_enqueue_style( $id );
 				break;
@@ -136,7 +136,9 @@ class WordPen {
 	public static function import_pen( $url ) {
 		$response = wp_remote_get( $url );
 		$dom = new DOMDocument();
+		libxml_use_internal_errors(true);
 		$dom->loadHTML( $response['body'] );
+		libxml_clear_errors();
 
 		$data = $dom->getElementById( 'init-data' )->getAttribute( 'value' );
 		$data = json_decode( $data, true );
@@ -165,7 +167,7 @@ class WordPen {
 	public static function maybe_import( $data, $post ) {
 		$post_id = $post['ID'];
 		if ( ! $post_id ) {
-			return $data;			
+			return $data;
 		}
 		if ( ! isset( $_POST['wordpen_metabox_nonce'] ) ) {
 			return $data;
@@ -186,8 +188,8 @@ class WordPen {
 		if( __( 'Auto Draft' ) == $data['post_title'] || '' == $data['post_title'] ) {
 			$data['post_title'] = $result['_codepen_title'];
 		}
-		unset( $result['_codepen_title'] );		
-		unset( $result['_codepen_uri'] );		
+		unset( $result['_codepen_title'] );
+		unset( $result['_codepen_uri'] );
 		foreach( $result as $key => $value ) {
 			// $data['meta_input'][$key] = $value;
 			$got = update_post_meta( $post_id, $key, $value );
