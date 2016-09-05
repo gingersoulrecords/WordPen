@@ -58,6 +58,7 @@ class WordPen {
 	}
 	private static function render_resources() {
 		if ( isset( $_REQUEST['wordpen_style'] ) ) {
+			header( 'Content-type: text/css' );
 			echo get_post_meta( $_REQUEST['wordpen_style'], '_codepen_css', true );
 			die();
 		}
