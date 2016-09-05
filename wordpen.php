@@ -137,7 +137,7 @@ class WordPen {
 		$response = wp_remote_get( $url );
 		$dom = new DOMDocument();
 		libxml_use_internal_errors(true);
-		$dom->loadHTML( $response['body'] );
+		@$dom->loadHTML( $response['body'] );
 		libxml_clear_errors();
 
 		$data = $dom->getElementById( 'init-data' )->getAttribute( 'value' );
