@@ -131,7 +131,7 @@ class WordPen {
 	public static function shortcode( $args, $content = '' ) {
 		$pen_id = $args['id'];
 		$html = get_post_meta( $pen_id, '_codepen_html', true );
-		echo "<div class='wordpen-container'>{$html}</div>\r";
+		return "<div class='wordpen-container'>{$html}</div>\r";
 	}
 	public static function import_pen( $url ) {
 		$response = wp_remote_get( $url );
