@@ -40,6 +40,13 @@ class WordPen {
 			add_filter( 'manage_edit-wordpen_columns',			array( 'WordPen', 'columns' ) );
 			add_action( 'manage_wordpen_posts_custom_column', 	array( 'WordPen', 'columns_content' ), 10, 2 );
 		}
+		add_filter( 'views_edit-wordpen', 							array( 'WordPen', 'before_list' ) );
+	}
+	public static function before_list( $a ) {
+		echo '<p class="clear">';
+		echo __( 'Your text goes here', 'soulmagic' );
+		echo '</p>';
+		return $a;
 	}
 	public static function columns( $col ) {
 		$temp = $col['date'];
@@ -206,6 +213,7 @@ class WordPen {
 			'label'  				=> __( 'WordPens', 'wordpen' ),
 			'supports'			=> array( '' ),
 			'has_archive'			=> false,
+			'menu_icon'		=> plugins_url( 'icon.png', __FILE__ ),
 		);
 		$args = apply_filters( 'wordpen_cpt_args', $args );
 		register_post_type( 'wordpen', $args );
