@@ -34,7 +34,7 @@ if( !class_exists( 'EDD_License_Glue' ) ) {
 			}
 			$this->updater = new EDD_SL_Plugin_Updater( $this->args['site'], $this->args['file'], array(
 				'version' 	=> $this->args['version'], 				// current version number
-				'license' 	=> $this->license['license_key'], 		// license key (used get_option above to retrieve from DB)
+				'license' 	=> isset( $this->license['license_key'] ) ? $this->license['license_key'] : '', 		// license key (used get_option above to retrieve from DB)
 				'item_name' => $this->args['plugin'], 	// name of this plugin
 				'author' 		=> $this->args['author']  // author of this plugin
 			) );
