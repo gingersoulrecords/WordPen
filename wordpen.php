@@ -222,10 +222,27 @@ class WordPen {
 		return $data;
 	}
 	public static function cpt_init() {
+		$labels = array(
+			'name'               => _x( 'WordPens', 'post type general name', 'wordpen' ),
+			'singular_name'      => _x( 'WordPen', 'post type singular name', 'wordpen' ),
+			'menu_name'          => _x( 'WordPens', 'admin menu', 'wordpen' ),
+			'name_admin_bar'     => _x( 'WordPen', 'add new on admin bar', 'wordpen' ),
+			'add_new'            => _x( 'Add New', 'WordPen', 'wordpen' ),
+			'add_new_item'       => __( 'Add New WordPen', 'wordpen' ),
+			'new_item'           => __( 'New WordPen', 'wordpen' ),
+			'edit_item'          => __( 'Edit WordPen', 'wordpen' ),
+			'view_item'          => __( 'View WordPen', 'wordpen' ),
+			'all_items'          => __( 'All WordPens', 'wordpen' ),
+			'search_items'       => __( 'Search WordPens', 'wordpen' ),
+			'parent_item_colon'  => __( 'Parent WordPens:', 'wordpen' ),
+			'not_found'          => __( 'No WordPens found.', 'wordpen' ),
+			'not_found_in_trash' => __( 'No WordPens found in Trash.', 'wordpen' )
+		);
 		$args = array(
 			// 'public' 				=> false,
 			'show_ui'	=> true,
 			'label'  				=> __( 'WordPens', 'wordpen' ),
+			'labels'				=> $labels,
 			'supports'			=> array( '' ),
 			'has_archive'			=> false,
 			'menu_icon'		=> plugins_url( 'icon.png', __FILE__ ),
