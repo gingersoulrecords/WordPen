@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: WordPen
-Plugin URI: http://gingersoulrecords.com
-Description: Import and insert snippets from Codepen as shortcodes.
-Version: 0.1.0
+Plugin URI: http://gingersoulrecords.com/wordpen
+Description: Embed CodePen into WordPress
+Version: 1.0.0
 Author: Dave Bloom
 Author URI:  http://gingersoulrecords.com
 */
