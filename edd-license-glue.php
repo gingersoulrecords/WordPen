@@ -14,19 +14,25 @@ if( !class_exists( 'EDD_License_Glue' ) ) {
 		public function __construct( $args ) {
 			$defaults = array(
 				'site'		=> 'http://www.gingersoulrecords.com',
-				'plugin'	=> '',
 				'menu'		=> '',
 				'menu_title'	=> 'License Menu',
 				'page_title'	=> 'License',
 				'label'				=> 'License Key',
 				'section_text'=> '',
 				'file'		=> '', // MAIN plugin file
-				'author'	=> 'Dave Bloom',
 				'license_text'	=> 'License is %s',
 				'license_text_invalid'	=> 'INVALID',
 				'license_text_active'		=> 'ACTIVE',
 			);
 			$this->args = wp_parse_args( $args, $defaults );
+			$data = get_plugin_data( $this->args['file'] );
+			$defaults = array(
+				'plugin'	=> $data['Name'],
+				'version'	=> $data['Version'],
+				'author'	=> $data['Author'],
+			);
+			$this->args = wp_parse_args( $this->args, $defaults );
+
 			$this->license = $this->_get_license();
 			if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 				// load our custom updater

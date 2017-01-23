@@ -26,16 +26,13 @@ class WordPen {
 		self::$plugin_path = plugin_dir_path( __FILE__ );
 		require_once( self::$plugin_path.'edd-license-glue.php' );
 		$glue = new EDD_License_Glue( array(
-			'site'		=> 'http://www.gingersoulrecords.com',
-			'plugin'	=> 'WordPen',
-			'version' => '0.1.0',
-			'menu_title'	=> 'License Menu',
-			'page_title'	=> 'License',
-			'dir'			=> self::$plugin_path,
-			'file'		=> __FILE__,
-			'author'	=> 'Dave Bloom',
-			'menu'		=> 'edit.php?post_type=wordpen',
-			'license_text'	=> 'License is %s',
+			'site'					=> 'http://www.gingersoulrecords.com',
+			'menu_title'		=> __( 'License Menu', 'wordpen' ),
+			'page_title'		=> __( 'License', 'wordpen' ),
+			'dir'						=> self::$plugin_path,
+			'file'					=> __FILE__,
+			'menu'					=> 'edit.php?post_type=wordpen',
+			'license_text'	=> __( 'License is %s', 'wordpen' ),
 			'license_text_invalid'	=> 'INVALID',
 			'license_text_active'		=> 'ACTIVE',
 		) );
