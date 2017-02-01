@@ -241,8 +241,9 @@ class WordPen {
 			'label'  				=> __( 'WordPens', 'wordpen' ),
 			'labels'				=> $labels,
 			'supports'			=> array( '' ),
-			'has_archive'			=> false,
-			'menu_icon'		=> plugins_url( 'icon.png', __FILE__ ),
+			'has_archive'		=> false,
+			'menu_icon'		  => plugins_url( 'icon.png', __FILE__ ),
+			'menu_position' => 59.021,
 		);
 		$args = apply_filters( 'wordpen_cpt_args', $args );
 		register_post_type( 'wordpen', $args );
