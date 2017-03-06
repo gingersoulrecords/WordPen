@@ -162,7 +162,7 @@ class WordPen {
 
 		$data = $dom->getElementById( 'init-data' )->getAttribute( 'value' );
 		$data = json_decode( $data, true );
-		$data = $data['__pen'];
+		$data = $data['__item'];
 		$data = json_decode( $data, true );
 		$result = array(
 			'_codepen_css' => $data['css'],
