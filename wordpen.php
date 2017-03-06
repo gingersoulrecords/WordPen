@@ -2,7 +2,7 @@
 /*
 Plugin Name: WordPen
 Plugin URI: http://gingersoulrecords.com/wordpen
-Description: Embed CodePen into WordPress
+Description: Embed CodePen into WordPress.
 Version: 1.0.0
 Author: Dave Bloom
 Author URI:  http://gingersoulrecords.com
