@@ -111,6 +111,9 @@ class WordPen {
 		}
 	}
 	private static function enqueue_resources( $pen_id ){
+		if ( 'publish' != get_post_status( $pen_id ) ) {
+			return '';
+		}
 		$resources = get_post_meta( $pen_id, '_codepen_resources', true );
 		foreach( $resources as $resource ) {
 			$id = 'wordpen-'.pathinfo( $resource['url'], PATHINFO_FILENAME).'-'.pathinfo($resource['url'], PATHINFO_EXTENSION);
@@ -150,6 +153,9 @@ class WordPen {
 	}
 	public static function shortcode( $args, $content = '' ) {
 		$pen_id = $args['id'];
+		if ( 'publish' != get_post_status( $args['id'] ) ) {
+			return '';
+		}
 		$html = get_post_meta( $pen_id, '_codepen_html', true );
 		return "<div class='wordpen-container'>{$html}</div>\r";
 	}
