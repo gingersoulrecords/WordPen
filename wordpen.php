@@ -1,41 +1,18 @@
 <?php
 /*
 Plugin Name: WordPen
-Plugin URI: http://gingersoulrecords.com/wordpen
+Plugin URI: https://gingersoulrecords.com/wordpen
 Description: Embed CodePen into WordPress.
 Version: 1.0.0
 Author: Dave Bloom
-Author URI:  http://gingersoulrecords.com
+Author URI:  https://gingersoulrecords.com
 */
-
-// TO DO haml compiler integration | http://codepen.io/goosey/pen/NGjMOe | http://codepen.io/xhepigerta/pen/bprWbR
-// TO DO less compiler integration | http://codepen.io/dicson/pen/oxeeVr
-
-
-// Working samples
-// http://soul.tribuna.lt/?wordpen=http://codepen.io/five23/pen/bEoKu
-// http://soul.tribuna.lt/?wordpen=http://codepen.io/chasebank/pen/GZvjBJ
-// http://soul.tribuna.lt/?wordpen=http://codepen.io/AdrienBachmann/pen/wGqqVJ
-// http://soul.tribuna.lt/?wordpen=http://codepen.io/jackrugile/pen/Xdaavx
-// http://soul.tribuna.lt/?wordpen=http://codepen.io/bradyhouse/pen/GZvmjN
 
 add_action( 'plugins_loaded', array( 'WordPen', 'init' ) );
 class WordPen {
 	public static $plugin_path = '';
 	public static function init() {
 		self::$plugin_path = plugin_dir_path( __FILE__ );
-		require_once( self::$plugin_path.'edd-license-glue.php' );
-		$glue = new EDD_License_Glue( array(
-			'site'					=> 'http://www.gingersoulrecords.com',
-			'menu_title'		=> __( 'License Menu', 'wordpen' ),
-			'page_title'		=> __( 'License', 'wordpen' ),
-			'dir'						=> self::$plugin_path,
-			'file'					=> __FILE__,
-			'menu'					=> 'edit.php?post_type=wordpen',
-			'license_text'	=> __( 'License is %s', 'wordpen' ),
-			'license_text_invalid'	=> 'INVALID',
-			'license_text_active'		=> 'ACTIVE',
-		) );
 		if ( isset( $_REQUEST['wordpen'] ) ) {
 			$result = self::import_pen( $_REQUEST['wordpen'] );
 			var_dump( $result );
@@ -138,14 +115,18 @@ class WordPen {
 		wp_enqueue_style( $id );
 	}
 	public static function style() {
-		wp_register_script( 'codemirror', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.js' );
-		wp_register_script( 'codemirror-css', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/css/css.min.js',array( 'codemirror' ) );
-		wp_register_script( 'wordpen-admin', plugins_url( 'wordpen-admin.js', __FILE__ ) );
+		// wp_register_script( 'codemirror', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.js' );
+		// wp_register_script( 'codemirror-css', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/css/css.min.js',array( 'codemirror' ) );
+		wp_register_script( 'codemirror', 		plugins_url( '/js/codemirror/lib/codemirror.js' ) );
+		wp_register_script( 'codemirror-css', plugins_url( '/js/codemirror/mode/css/css.min.js' ), array( 'codemirror' ) );
+		wp_register_script( 'wordpen-admin', 	plugins_url( 'wordpen-admin.js', __FILE__ ) );
 		wp_enqueue_script( 'codemirror' );
 		wp_enqueue_script( 'codemirror-css' );
 		wp_enqueue_script( 'wordpen-admin' );
-		wp_register_style( 'codemirror', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.css' );
-		wp_register_style( 'codemirror-theme', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/theme/cobalt.min.css', array( 'codemirror' ) );
+		// wp_register_style( 'codemirror', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.css' );
+		// wp_register_style( 'codemirror-theme', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/theme/cobalt.min.css', array( 'codemirror' ) );
+		wp_register_style( 'codemirror', 				plugins_url( '/js/codemirror/lib/codemirror.css' ) );
+		wp_register_style( 'codemirror-theme', 	plugins_url( '/js/codemirror/theme/cobalt.min.css' ), array( 'codemirror' ) );
 		wp_register_style( 'wordpen-admin', plugins_url( 'wordpen-admin.css', __FILE__ ) );
 		wp_enqueue_style( 'codemirror' );
 		wp_enqueue_style( 'codemirror-theme' );
