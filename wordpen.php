@@ -2,7 +2,7 @@
 /*
 Plugin Name: WordPen
 Plugin URI: https://gingersoulrecords.com/wordpen
-Description: Embed CodePen into WordPress.
+Description: Embed pens from CodePen without the 'edit' frame
 Version: 1.0.0
 Author: Dave Bloom
 Author URI:  https://gingersoulrecords.com
@@ -117,16 +117,16 @@ class WordPen {
 	public static function style() {
 		// wp_register_script( 'codemirror', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.js' );
 		// wp_register_script( 'codemirror-css', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/css/css.min.js',array( 'codemirror' ) );
-		wp_register_script( 'codemirror', 		plugins_url( '/js/codemirror/lib/codemirror.js' ) );
-		wp_register_script( 'codemirror-css', plugins_url( '/js/codemirror/mode/css/css.min.js' ), array( 'codemirror' ) );
+		wp_register_script( 'codemirror', 		plugins_url( '/js/codemirror/lib/codemirror.js', __FILE__ ) );
+		wp_register_script( 'codemirror-css', plugins_url( '/js/codemirror/mode/css/css.js', __FILE__ ), array( 'codemirror' ) );
 		wp_register_script( 'wordpen-admin', 	plugins_url( 'wordpen-admin.js', __FILE__ ) );
 		wp_enqueue_script( 'codemirror' );
 		wp_enqueue_script( 'codemirror-css' );
 		wp_enqueue_script( 'wordpen-admin' );
 		// wp_register_style( 'codemirror', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.css' );
 		// wp_register_style( 'codemirror-theme', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/theme/cobalt.min.css', array( 'codemirror' ) );
-		wp_register_style( 'codemirror', 				plugins_url( '/js/codemirror/lib/codemirror.css' ) );
-		wp_register_style( 'codemirror-theme', 	plugins_url( '/js/codemirror/theme/cobalt.min.css' ), array( 'codemirror' ) );
+		wp_register_style( 'codemirror', 				plugins_url( '/js/codemirror/lib/codemirror.css', __FILE__ ) );
+		wp_register_style( 'codemirror-theme', 	plugins_url( '/js/codemirror/theme/cobalt.css', __FILE__ ), array( 'codemirror' ) );
 		wp_register_style( 'wordpen-admin', plugins_url( 'wordpen-admin.css', __FILE__ ) );
 		wp_enqueue_style( 'codemirror' );
 		wp_enqueue_style( 'codemirror-theme' );
